@@ -31,10 +31,10 @@ static void enqueue_task_prio(task_t* t,runqueue_t* rq, int preempted)
 		task_t* current=rq->cur_task;
 
 		/* Trigger a preemption if this task has a shorter priority than current */
-		if (preemptive_scheduler && t->prio < current->prio) {
+		if (preemptive_scheduler && t->runnable_ticks_left < current->runnable_ticks_left) {
 			rq->need_resched=TRUE;
 			current->flags|=TF_INSERT_FRONT; /* To avoid unfair situations in the event
-                                                another task with the same length wakes up as well*/
+                                            	   another task with the same length wakes up as well*/
 		}
 	}
 }

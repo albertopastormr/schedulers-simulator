@@ -27,24 +27,23 @@ int sys_barrier_wait(sys_barrier_t *barrier)
 /* Barrier initialization function */
 int sys_barrier_init(sys_barrier_t *barrier, unsigned int nr_threads)
 {
-	/* Initialize fields in sys_barrier_t
-	     ... To be completed ....
-	*/
+	barrier->mutex = PTHREAD_MUTEX_INITIALIZER;
+	barrier->cond =  PTHREAD_COND_INITIALIZER;
+	barrier->max_threads = nr_threads;
+	barrier->nr_threads_arrived = 0;
 	return 0;
 }
 
 /* Destroy barrier resources */
 int sys_barrier_destroy(sys_barrier_t *barrier)
 {
-	/* Destroy synchronization resources associated with the barrier
-	      ... To be completed ....
-	*/
+	pthread_mutex_destroy(&barrier->mutex);
+	pthread_cond_destroy(&barrier->cond);
 	return 0;
 }
 
 /* Main synchronization operation */
-int sys_barrier_wait(sys_barrier_t *barrier)
-{
+int sys_barrier_wait(sys_barrier_t *barrier){
 	/* Implementation outline:
 	   - Every thread arriving at the barrier acquires the lock and increments the nr_threads_arrived
 	    counter atomically
@@ -54,9 +53,16 @@ int sys_barrier_wait(sys_barrier_t *barrier)
 	        1. Reset the barrier state in preparation for the next invocation of sys_barrier_wait() and
 	        2. Wake up all threads blocked in the barrier
 	   - Don't forget to release the lock before returning from the function
-
-	    ... To be completed ....
 	*/
+	pthread_mutex_lock(&barrier->mutex);
+	barrier->nr_threads_arrived++;
+	while(barrier->nr_threads_arrived > 1){
+		pthread_cond_wait(&barrier->cond);
+	}
+	barrier->nr_threads_arrived = 0;
+	pthread_cond_broadcast(&barrier->cond);
+
+	pthread_mutex_unlock(&barrier->mutex);
 	return 0;
 }
 

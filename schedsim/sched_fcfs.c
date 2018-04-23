@@ -1,7 +1,7 @@
 #include "sched.h"
 
 
-static task_t* pick_next_task_sjf(runqueue_t* rq){
+static task_t* pick_next_task_fcfs(runqueue_t* rq){
 	
 	task_t* t=head_slist(&rq->tasks);
 
@@ -12,7 +12,7 @@ static task_t* pick_next_task_sjf(runqueue_t* rq){
 	return t;
 }
 
-static void enqueue_task_sjf(task_t* t,runqueue_t* rq, int preempted){
+static void enqueue_task_fcfs(task_t* t,runqueue_t* rq, int preempted){
 
 	if (t->on_rq || is_idle_task(t))
 		return;

@@ -27,8 +27,12 @@ int sys_barrier_wait(sys_barrier_t *barrier)
 /* Barrier initialization function */
 int sys_barrier_init(sys_barrier_t *barrier, unsigned int nr_threads)
 {
-	barrier->mutex = PTHREAD_MUTEX_INITIALIZER;
-	barrier->cond =  PTHREAD_COND_INITIALIZER;
+	if(pthread_mutex_init(&barrier->mutex, NULL) < 0){
+		return -1;
+	} 
+	if(pthread_cond_init(&barrier->cond, NULL) < 0 ){
+		return -1;
+	}
 	barrier->max_threads = nr_threads;
 	barrier->nr_threads_arrived = 0;
 	return 0;
@@ -57,7 +61,7 @@ int sys_barrier_wait(sys_barrier_t *barrier){
 	pthread_mutex_lock(&barrier->mutex);
 	barrier->nr_threads_arrived++;
 	while(barrier->nr_threads_arrived > 1){
-		pthread_cond_wait(&barrier->cond);
+		pthread_cond_wait(&barrier->cond, &barrier->mutex);
 	}
 	barrier->nr_threads_arrived = 0;
 	pthread_cond_broadcast(&barrier->cond);

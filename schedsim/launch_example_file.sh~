@@ -18,33 +18,42 @@ mkdir $EPS_DIR
 let example_filename # Nombre del fichero de ejemplo a ejecutar en el script
 let maxCPUs=0 # Numero maximo de cpus a utilizar en la ejecucion del script
 
-declare -a sched_names_array=("RR", "SJF", "FCFS", "PRIO")
+declare -a sched_names_array=("RR" "SJF" "FCFS" "PRIO")
 
 read -p "Enter example filename --> " examples_filename
 
 read -p "Enter CPU max --> " maxCPUs
 
-for sched_name in "${sched_names_array[@]}" do
+chmod +x ../gantt-gplot/gantt.py
 
+for sched_name in "${sched_names_array[@]}"
+do
+
+	echo SIMULACION DEL FICHERO $examples_filename CON EL SCHEDULER $sched_name
 	# Directorios por cada scheduler para ficheros log y eps
 	mkdir $LOG_DIR/$sched_name
 	mkdir $EPS_DIR/$sched_name
 
-	for cpus = 1 to maxCPUs do
-
-		./schedsim -i $examples_filename -n $cpus -s $sched_name
-
-		for i=1 to cpus do
+	for (( num_cpus=1 ; num_cpus < maxCPUs ; num_cpus++ ))
+	do
+		./schedsim -i $examples_filename -n $num_cpus -s $sched_name
+		# Movimiento de los ficheros .log generados por el simulador (genera 1 fichero por CPU)
+		for (( i=0; i < num_cpus ; i++ ))
+		do
 			mv CPU_$i.log $LOG_DIR/$sched_name/CPU_$i.log
 		done
-	
-		for i=1 to cpus do
-			../gantt-gplot/generate_gantt_chart $LOG_DIR/$sched_name/CPU_$i.log
+		# Generacion de grafica por cada .log desarrollado por el simulador
+		for (( i=0; i < num_cpus ; i++ ))
+		do
+			cd ../gantt-gplot
+			./generate_gantt_chart $LOG_DIR/$sched_name/CPU_$i.log
 		done
-
-		for i=1 to cpus do
-			mv $LOG_DIR/$sched_name/CPU_$i.eps $EPS_DIR/$sched_name/CPU_$i.log
+		# Movimiento de los ficheros .eps generados
+		for (( i=0; i < num_cpus ; i++ ))
+		do
+			mv $LOG_DIR/$sched_name/CPU_$i.eps $EPS_DIR/$sched_name/CPU_$i.eps
 		done
+		cd ../schedsim
 
 	done
 done

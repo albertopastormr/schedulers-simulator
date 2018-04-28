@@ -29,29 +29,35 @@ chmod +x ../gantt-gplot/gantt.py
 for sched_name in "${sched_names_array[@]}"
 do
 
-	echo SIMULACION DEL FICHERO $examples_filename CON EL SCHEDULER $sched_name
+	echo SCHEDULER $sched_name RUNNING FILE $examples_filename 
 	# Directorios por cada scheduler para ficheros log y eps
 	mkdir $LOG_DIR/$sched_name
 	mkdir $EPS_DIR/$sched_name
 
-	for (( num_cpus=1 ; num_cpus < maxCPUs ; num_cpus++ ))
+	for (( num_cpus=1 ; num_cpus <= maxCPUs ; num_cpus++ ))
 	do
 		./schedsim -i $examples_filename -n $num_cpus -s $sched_name
 		# Movimiento de los ficheros .log generados por el simulador (genera 1 fichero por CPU)
 		for (( i=0; i < num_cpus ; i++ ))
 		do
-			mv CPU_$i.log $LOG_DIR/$sched_name/CPU_$i.log
+			#LOG_PATH="$LOG_DIR/$sched_name/num_ex_${num_cpus}"
+			
+			mv CPU_$i.log $LOG_DIR/$sched_name/num_ex_${num_cpus}"_num_CPU_n$i.log"
 		done
 		# Generacion de grafica por cada .log desarrollado por el simulador
 		for (( i=0; i < num_cpus ; i++ ))
 		do
+			#LOG_PATH="$LOG_DIR/$sched_name/num_ex_${num_cpus}"
 			cd ../gantt-gplot
-			./generate_gantt_chart $LOG_DIR/$sched_name/CPU_$i.log
+			./generate_gantt_chart $LOG_DIR/$sched_name/num_ex_${num_cpus}"_num_CPU_n$i.log"
 		done
 		# Movimiento de los ficheros .eps generados
 		for (( i=0; i < num_cpus ; i++ ))
 		do
-			mv $LOG_DIR/$sched_name/CPU_$i.eps $EPS_DIR/$sched_name/CPU_$i.eps
+			#LOG_PATH="$LOG_DIR/$sched_name/num_ex_${num_cpus}"
+			#EPS_PATH="$EPS_DIR/$sched_name/num_ex_${num_cpus}"
+			
+			mv $LOG_DIR/$sched_name/num_ex_${num_cpus}"_num_CPU_n$i.eps" $EPS_DIR/$sched_name/num_ex_${num_cpus}"_num_CPU_n$i.eps"
 		done
 		cd ../schedsim
 

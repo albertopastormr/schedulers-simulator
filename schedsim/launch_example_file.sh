@@ -18,7 +18,7 @@ mkdir $EPS_DIR
 let example_filename # Nombre del fichero de ejemplo a ejecutar en el script
 let maxCPUs=0 # Numero maximo de cpus a utilizar en la ejecucion del script
 
-declare -a sched_names_array=("RR" "SJF" "FCFS" "PRIO")
+declare -a sched_names_array=("RR" "MULTIRR" "SJF" "FCFS" "PRIO")
 
 read -p "Enter example filename --> " examples_filename
 
